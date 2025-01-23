@@ -58,8 +58,6 @@ export const CippApiDialog = (props) => {
       return api.dataFunction(row);
     }
     var newData = {};
-    console.log("the received row", row);
-    console.log("the received dataObject", dataObject);
 
     if (api?.postEntireRow) {
       newData = row;
@@ -87,7 +85,6 @@ export const CippApiDialog = (props) => {
         }
       });
     }
-    console.log("output", newData);
     return newData;
   };
   const tenantFilter = useSettings().currentTenant;
@@ -212,10 +209,10 @@ export const CippApiDialog = (props) => {
   }
   useEffect(() => {
     if (api.noConfirm) {
-      formHook.handleSubmit(onSubmit)(); // Submits the form on mount
-      createDialog.handleClose(); // Closes the dialog after submitting
+      formHook.handleSubmit(onSubmit)();
+      createDialog.handleClose();
     }
-  }, [api.noConfirm]); // Run effect only when api.noConfirm changes
+  }, [api.noConfirm]);
 
   const handleClose = () => {
     createDialog.handleClose();
@@ -254,7 +251,7 @@ export const CippApiDialog = (props) => {
             Close
           </Button>
           <Button variant="contained" type="submit">
-            Confirm
+            {actionGetRequest.isSuccess || actionPostRequest.isSuccess ? "Resubmit" : "Submit"}
           </Button>
         </DialogActions>
       </form>
