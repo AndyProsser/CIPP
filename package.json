@@ -24,7 +24,7 @@
     "start-swa": "swa start --swa-config-location .vscode http://127.0.0.1:3000 --api-location http://127.0.0.1:7071 --verbose=silly"
   },
   "dependencies": {
-    "@emotion/cache": "11.10.5",
+    "@emotion/cache": "11.14.0",
     "@emotion/react": "11.13.3",
     "@emotion/server": "11.10.0",
     "@emotion/styled": "11.13.0",
