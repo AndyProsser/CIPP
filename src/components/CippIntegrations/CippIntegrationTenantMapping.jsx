@@ -22,6 +22,7 @@ import { CippFormTenantSelector } from "../CippComponents/CippFormTenantSelector
 import { Sync, SyncAlt } from "@mui/icons-material";
 import { CippFormComponent } from "../CippComponents/CippFormComponent";
 import { CippApiResults } from "../CippComponents/CippApiResults";
+import { ApiGetCallWithPagination } from "../../api/ApiCall";
 
 const CippIntegrationSettings = ({ children }) => {
   const router = useRouter();
@@ -35,7 +36,7 @@ const CippIntegrationSettings = ({ children }) => {
     queryKey: `IntegrationTenantMapping-${router.query.id}`,
   });
 
-  const tenantList = ApiGetCall({
+  const tenantList = ApiGetCallWithPagination({
     url: "/api/ListTenants",
     data: { AllTenantSelector: false },
     queryKey: "ListTenants-notAllTenants",
@@ -95,7 +96,7 @@ const CippIntegrationSettings = ({ children }) => {
 
   const handleAutoMap = () => {
     const newTableData = [];
-    tenantList.data.forEach((tenant) => {
+    tenantList.data?.pages[0]?.forEach((tenant) => {
       const matchingCompany = mappings.data.Companies.find(
         (company) => company.name === tenant.displayName
       );
@@ -139,7 +140,7 @@ const CippIntegrationSettings = ({ children }) => {
 
   useEffect(() => {
     if (mappings.isSuccess) {
-      setTableData(mappings.data.Mappings);
+      setTableData(mappings.data.Mappings ?? []);
     }
   }, [mappings.isSuccess]);
 

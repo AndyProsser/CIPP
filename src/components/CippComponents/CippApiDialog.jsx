@@ -9,7 +9,16 @@ import { useSettings } from "../../hooks/use-settings";
 import CippFormComponent from "./CippFormComponent";
 
 export const CippApiDialog = (props) => {
-  const { createDialog, title, fields, api, row = {}, relatedQueryKeys, ...other } = props;
+  const {
+    createDialog,
+    title,
+    fields,
+    api,
+    row = {},
+    relatedQueryKeys,
+    dialogAfterEffect,
+    ...other
+  } = props;
   const router = useRouter();
   const [addedFieldData, setAddedFieldData] = useState({});
   const [partialResults, setPartialResults] = useState([]);
@@ -38,6 +47,9 @@ export const CippApiDialog = (props) => {
     bulkRequest: api.multiPost === false,
     onResult: (result) => {
       setPartialResults((prevResults) => [...prevResults, result]);
+      if (api?.onSuccess) {
+        api.onSuccess(result);
+      }
     },
   });
   const actionGetRequest = ApiGetCall({
@@ -50,6 +62,9 @@ export const CippApiDialog = (props) => {
     bulkRequest: api.multiPost === false,
     onResult: (result) => {
       setPartialResults((prevResults) => [...prevResults, result]);
+      if (api?.onSuccess) {
+        api.onSuccess(result);
+      }
     },
   });
 
@@ -64,7 +79,6 @@ export const CippApiDialog = (props) => {
     } else {
       Object.keys(dataObject).forEach((key) => {
         const value = dataObject[key];
-
         if (typeof value === "string" && value.startsWith("!")) {
           newData[key] = value.slice(1);
         } else if (typeof value === "string") {
@@ -129,6 +143,7 @@ export const CippApiDialog = (props) => {
           data: arrayOfObjects,
         });
       }
+
       return;
     }
 
@@ -182,10 +197,49 @@ export const CippApiDialog = (props) => {
       });
     }
   };
-
+  //add a useEffect, when dialogAfterEffect exists, and the post or get request is successful, run the dialogAfterEffect function
+  useEffect(() => {
+    if (dialogAfterEffect && (actionPostRequest.isSuccess || actionGetRequest.isSuccess)) {
+      dialogAfterEffect(actionPostRequest.data.data || actionGetRequest.data);
+    }
+  }, [actionPostRequest.isSuccess, actionGetRequest.isSuccess]);
   const formHook = useForm();
   const onSubmit = (data) => handleActionClick(row, api, data);
   const selectedType = api.type === "POST" ? actionPostRequest : actionGetRequest;
+
+  if (api?.setDefaultValues) {
+    fields.map((field) => {
+      if (
+        ((typeof row[field.name] === "string" && field.type === "textField") ||
+          (typeof row[field.name] === "boolean" && field.type === "switch")) &&
+        row[field.name] !== undefined &&
+        row[field.name] !== null &&
+        row[field.name] !== ""
+      ) {
+        formHook.setValue(field.name, row[field.name]);
+      } else if (Array.isArray(row[field.name]) && field.type === "autoComplete") {
+        var values = [];
+        row[field.name].map((element) => {
+          values.push({
+            label: element,
+            value: element,
+          });
+        });
+        formHook.setValue(field.name, values);
+      } else if (
+        field.type === "autoComplete" &&
+        row[field.name] !== undefined &&
+        row[field.name] !== null &&
+        row[field.name] !== "" &&
+        typeof row[field.name] === "string"
+      ) {
+        formHook.setValue(field.name, {
+          label: row[field.name],
+          value: row[field.name],
+        });
+      }
+    });
+  }
 
   // Handling link navigation
   if (api.link) {
@@ -209,10 +263,10 @@ export const CippApiDialog = (props) => {
   }
   useEffect(() => {
     if (api.noConfirm) {
-      formHook.handleSubmit(onSubmit)();
-      createDialog.handleClose();
+      formHook.handleSubmit(onSubmit)(); // Submits the form on mount
+      createDialog.handleClose(); // Closes the dialog after submitting
     }
-  }, [api.noConfirm]);
+  }, [api.noConfirm]); // Run effect only when api.noConfirm changes
 
   const handleClose = () => {
     createDialog.handleClose();
@@ -251,7 +305,7 @@ export const CippApiDialog = (props) => {
             Close
           </Button>
           <Button variant="contained" type="submit">
-            {actionGetRequest.isSuccess || actionPostRequest.isSuccess ? "Resubmit" : "Submit"}
+            Confirm
           </Button>
         </DialogActions>
       </form>
