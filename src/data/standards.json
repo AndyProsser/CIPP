@@ -1202,6 +1202,18 @@
     "recommendedBy": ["CIS"]
   },
   {
+    "name": "standardsAutoAddProxy",
+    "cat": "Exchange Standards",
+    "tag": ["lowimpact", "CIS"],
+    "helpText": "Automatically adds all available domains as a proxy address.",
+    "docsDescription": "Automatically finds all available domain names in the tenant, and tries to add proxyaddresses based on the users UPN to each of these.",
+    "addedComponent": [],
+    "label": "Automatically deploy proxy addresses",
+    "impact": "Medium Impact",
+    "impactColour": "warning",
+    "powershellEquivalent": "set-mailbox -emailaddresses @{add=$emailaddress}"
+  },
+  {
     "name": "standards.DisableAdditionalStorageProviders",
     "cat": "Exchange Standards",
     "tag": ["lowimpact", "CIS", "exo_storageproviderrestricted"],
@@ -1421,10 +1433,10 @@
     "docsDescription": "Creates a CIPP - Deleted Items retention policy tag that permanently deletes items in the Deleted Items folder after X days.",
     "addedComponent": [
       {
-      "type": "number",
-      "name": "standards.RetentionPolicyTag.AgeLimitForRetention",
-      "label": "Retention Days",
-      "required": true
+        "type": "number",
+        "name": "standards.RetentionPolicyTag.AgeLimitForRetention",
+        "label": "Retention Days",
+        "required": true
       }
     ],
     "label": "Retention Policy, permanently delete items in Deleted Items after X days",
@@ -1704,8 +1716,8 @@
       {
         "type": "select",
         "multiple": false,
-        "label": "Action",
-        "name": "standards.SafeAttachmentPolicy.Action",
+        "label": "Safe Attachment Action",
+        "name": "standards.SafeAttachmentPolicy.SafeAttachmentAction",
         "options": [
           {
             "label": "Allow",
@@ -2791,7 +2803,7 @@
       },
       {
         "type": "autoComplete",
-        "required" : true,
+        "required": true,
         "multiple": false,
         "name": "standards.TeamsFederationConfiguration.DomainControl",
         "label": "Communication Mode",

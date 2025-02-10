@@ -1,6 +1,6 @@
-import { Close, ContentCopy } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import { Alert, CircularProgress, Collapse, IconButton, Typography } from "@mui/material";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { getCippError } from "../../utils/get-cipp-error";
 import { CippCopyToClipBoard } from "./CippCopyToClipboard";
 import { Grid } from "@mui/system";
@@ -52,40 +52,47 @@ const extractAllResults = (data) => {
       return;
     }
 
-    const ignoreKeys = ["metadata", "Metadata"];
+    if (obj?.resultText) {
+      const processed = processResultItem(obj);
+      if (processed) {
+        results.push(processed);
+      }
+    } else {
+      const ignoreKeys = ["metadata", "Metadata"];
 
-    if (typeof obj === "object") {
-      Object.keys(obj).forEach((key) => {
-        const value = obj[key];
-        if (ignoreKeys.includes(key)) return;
-        if (["Results", "Result", "results", "result"].includes(key)) {
-          if (Array.isArray(value)) {
-            value.forEach((valItem) => {
-              const processed = processResultItem(valItem);
+      if (typeof obj === "object") {
+        Object.keys(obj).forEach((key) => {
+          const value = obj[key];
+          if (ignoreKeys.includes(key)) return;
+          if (["Results", "Result", "results", "result"].includes(key)) {
+            if (Array.isArray(value)) {
+              value.forEach((valItem) => {
+                const processed = processResultItem(valItem);
+                if (processed) {
+                  results.push(processed);
+                } else {
+                  extractFrom(valItem);
+                }
+              });
+            } else if (typeof value === "object") {
+              const processed = processResultItem(value);
               if (processed) {
                 results.push(processed);
               } else {
-                extractFrom(valItem);
+                extractFrom(value);
               }
-            });
-          } else if (typeof value === "object") {
-            const processed = processResultItem(value);
-            if (processed) {
-              results.push(processed);
-            } else {
-              extractFrom(value);
+            } else if (typeof value === "string") {
+              results.push({
+                text: value,
+                copyField: value,
+                severity: getSeverity(value),
+              });
             }
-          } else if (typeof value === "string") {
-            results.push({
-              text: value,
-              copyField: value,
-              severity: getSeverity(value),
-            });
+          } else {
+            extractFrom(value);
           }
-        } else {
-          extractFrom(value);
-        }
-      });
+        });
+      }
     }
   };
 
@@ -129,7 +136,7 @@ export const CippApiResults = (props) => {
   const allResults = useMemo(() => {
     const apiResults = extractAllResults(correctResultObj);
     return apiResults;
-  }, [apiObject]);
+  }, [correctResultObj]);
 
   useEffect(() => {
     setErrorVisible(!!apiObject.isError);
@@ -163,9 +170,9 @@ export const CippApiResults = (props) => {
     errorsOnly,
   ]);
 
-  const handleCloseResult = (id) => {
+  const handleCloseResult = useCallback((id) => {
     setFinalResults((prev) => prev.map((r) => (r.id === id ? { ...r, visible: false } : r)));
-  };
+  }, []);
 
   const hasVisibleResults = finalResults.some((r) => r.visible);
   return (
