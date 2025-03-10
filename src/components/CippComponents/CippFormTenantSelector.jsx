@@ -1,14 +1,17 @@
 import React from "react";
 import { CippFormComponent } from "./CippFormComponent";
+import { useSettings } from "../../hooks/use-settings";
 
 export const CippFormTenantSelector = ({
   formControl,
+  componentType = "autoComplete",
   allTenants = false,
   type = "multiple",
   name = "tenantFilter",
   valueField = "defaultDomainName",
   required = true,
   disableClearable = true,
+  removeOptions = [],
   ...other
 }) => {
   const validators = () => {
@@ -19,13 +22,15 @@ export const CippFormTenantSelector = ({
     }
     return {};
   };
-
+  const currentTenant = useSettings()?.currentTenant;
   return (
     <CippFormComponent
-      type="autoComplete"
+      type={componentType}
       name={name}
       formControl={formControl}
+      preselectedValue={currentTenant ? currentTenant : null}
       placeholder="Select a tenant"
+      //default value is: if currentTenant is not null, then FIND
       api={{
         excludeTenantFilter: true,
         url: allTenants ? "/api/ListTenants?AllTenantSelector=true" : "/api/ListTenants",
@@ -38,9 +43,11 @@ export const CippFormTenantSelector = ({
           customerId: "customerId",
         },
       }}
+      creatable={false}
       multiple={type === "single" ? false : true}
       disableClearable={disableClearable}
       validators={validators}
+      removeOptions={removeOptions}
       {...other}
     />
   );
