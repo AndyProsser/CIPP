@@ -9,11 +9,13 @@ import { useEffect } from "react";
 import CippFormSkeleton from "/src/components/CippFormPages/CippFormSkeleton";
 import { getCippLicenseTranslation } from "/src/utils/get-cipp-license-translation";
 import CalendarIcon from "@heroicons/react/24/outline/CalendarIcon";
-import { Mail, Fingerprint } from "@mui/icons-material";
+import { Mail, Fingerprint, Launch } from "@mui/icons-material";
 import { HeaderedTabbedLayout } from "../../../../../layouts/HeaderedTabbedLayout";
 import tabOptions from "./tabOptions";
 import { CippCopyToClipBoard } from "../../../../../components/CippComponents/CippCopyToClipboard";
 import { CippTimeAgo } from "../../../../../components/CippComponents/CippTimeAgo";
+import { Button, Alert } from "@mui/material";
+import { Box } from "@mui/system";
 const Page = () => {
   const userSettingsDefaults = useSettings();
   const router = useRouter();
@@ -41,9 +43,13 @@ const Page = () => {
           defaultAttributes[attribute.label] = { Value: user?.[attribute.label] };
         });
       }
-      console.log(defaultAttributes);
+
+      // Use fallback for usageLocation if user's usageLocation is null/undefined
+      const usageLocation = user?.usageLocation || userSettingsDefaults?.usageLocation || null;
+
       formControl.reset({
         ...user,
+        usageLocation: usageLocation,
         defaultAttributes: defaultAttributes,
         tenantFilter: userSettingsDefaults.currentTenant,
         licenses: user.assignedLicenses.map((license) => ({
@@ -76,6 +82,21 @@ const Page = () => {
             </>
           ),
         },
+        {
+          icon: <Launch style={{ color: "#667085" }} />,
+          text: (
+            <Button
+              color="muted"
+              style={{ paddingLeft: 0 }}
+              size="small"
+              href={`https://entra.microsoft.com/${userSettingsDefaults.currentTenant}/#view/Microsoft_AAD_UsersAndTenants/UserProfileMenuBlade/~/overview/userId/${userId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View in Entra
+            </Button>
+          ),
+        },
       ]
     : [];
 
@@ -86,6 +107,12 @@ const Page = () => {
       subtitle={subtitle}
       isFetching={userRequest.isLoading}
     >
+      {userRequest.isSuccess && userRequest.data?.[0]?.onPremisesSyncEnabled && (
+        <Alert severity="error" sx={{ mb: 1 }}>
+          This user is synced from on-premises Active Directory. Changes should be made in the
+          on-premises environment instead.
+        </Alert>
+      )}
       <CippFormPage
         queryKey={[`ListUsers-${userId}`, `Licenses-${userSettingsDefaults.currentTenant}`]}
         formControl={formControl}
@@ -97,11 +124,13 @@ const Page = () => {
       >
         {userRequest.isLoading && <CippFormSkeleton layout={[2, 1, 2, 1, 1, 1, 2, 2, 2, 2, 3]} />}
         {userRequest.isSuccess && (
-          <CippAddEditUser
-            formControl={formControl}
-            userSettingsDefaults={userSettingsDefaults}
-            formType="edit"
-          />
+          <Box sx={{ my: 2 }}>
+            <CippAddEditUser
+              formControl={formControl}
+              userSettingsDefaults={userSettingsDefaults}
+              formType="edit"
+            />
+          </Box>
         )}
       </CippFormPage>
     </HeaderedTabbedLayout>
