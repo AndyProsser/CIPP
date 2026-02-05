@@ -1,5 +1,5 @@
-import { Layout as DashboardLayout } from "/src/layouts/index.js";
-import { CippTablePage } from "/src/components/CippComponents/CippTablePage.jsx";
+import { Layout as DashboardLayout } from "../../../../layouts/index.js";
+import { CippTablePage } from "../../../../components/CippComponents/CippTablePage.jsx";
 import { Button } from "@mui/material";
 import { Book, AddModerator } from "@mui/icons-material";
 import Link from "next/link";
@@ -9,14 +9,14 @@ const Page = () => {
 
   const actions = [
     {
-      label: "Create template based on rule",
+      label: "Create template based on filter",
       type: "POST",
       url: "/api/AddConnectionfilterTemplate",
       dataFunction: (data) => {
         return { ...data };
       },
       icon: <Book />,
-      confirmText: "Are you sure you want to create a template based on this rule?",
+      confirmText: "Are you sure you want to create a template based on this filter?",
     },
   ];
 
@@ -58,5 +58,5 @@ const Page = () => {
   );
 };
 
-Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+Page.getLayout = (page) => <DashboardLayout allTenantsSupport={false}>{page}</DashboardLayout>;
 export default Page;
