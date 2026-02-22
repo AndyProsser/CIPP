@@ -1,17 +1,22 @@
 import { Button } from "@mui/material";
-import { CippTablePage } from "/src/components/CippComponents/CippTablePage.jsx";
-import { Layout as DashboardLayout } from "/src/layouts/index.js"; // had to add an extra path here because I added an extra folder structure. We should switch to absolute pathing so we dont have to deal with relative.
+import { CippTablePage } from "../../../../components/CippComponents/CippTablePage.jsx";
+import { Layout as DashboardLayout } from "../../../../layouts/index.js"; // had to add an extra path here because I added an extra folder structure. We should switch to absolute pathing so we dont have to deal with relative.
 import Link from "next/link";
-import { EyeIcon } from "@heroicons/react/24/outline";
-import { CopyAll, Delete, NotificationAdd } from "@mui/icons-material";
+import { CopyAll, Delete, Edit, NotificationAdd, Visibility } from "@mui/icons-material";
 
 const Page = () => {
   const pageTitle = "Alerts";
   const actions = [
     {
+      label: "View Task Details",
+      link: "/cipp/scheduler/task?id=[RowKey]",
+      icon: <Visibility />,
+      condition: (row) => row?.EventType === "Scheduled Task",
+    },
+    {
       label: "Edit Alert",
       link: "/tenant/administration/alert-configuration/alert?id=[RowKey]",
-      icon: <EyeIcon />,
+      icon: <Edit />,
       color: "success",
       target: "_self",
     },
@@ -24,7 +29,7 @@ const Page = () => {
     },
     {
       label: "Delete Alert",
-      type: "GET",
+      type: "POST",
       url: "/api/RemoveQueuedAlert",
       data: {
         ID: "RowKey",
@@ -52,7 +57,15 @@ const Page = () => {
         </Button>
       }
       actions={actions}
-      simpleColumns={["Tenants", "EventType", "Conditions", "RepeatsEvery", "Actions"]}
+      simpleColumns={[
+        "Tenants",
+        "EventType",
+        "Conditions",
+        "RepeatsEvery",
+        "Actions",
+        "AlertComment",
+        "excludedTenants",
+      ]}
       queryKey="ListAlertsQueue"
     />
   );

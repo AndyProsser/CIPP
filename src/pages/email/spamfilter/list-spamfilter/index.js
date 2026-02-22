@@ -1,5 +1,5 @@
-import { Layout as DashboardLayout } from "/src/layouts/index.js";
-import { CippTablePage } from "/src/components/CippComponents/CippTablePage.jsx";
+import { Layout as DashboardLayout } from "../../../../layouts/index.js";
+import { CippTablePage } from "../../../../components/CippComponents/CippTablePage.jsx";
 import { Button } from "@mui/material";
 import { Book, Block, Check } from "@mui/icons-material";
 import { TrashIcon } from "@heroicons/react/24/outline";
@@ -8,7 +8,7 @@ import { RocketLaunch } from "@mui/icons-material";
 
 const Page = () => {
   const pageTitle = "Spam Filters";
-  const apiUrl = "/api/ListSpamfilter"
+  const apiUrl = "/api/ListSpamfilter";
 
   const actions = [
     {
@@ -23,11 +23,11 @@ const Page = () => {
     },
     {
       label: "Enable Rule",
-      type: "GET",
+      type: "POST",
       icon: <Check />,
       url: "/api/EditSpamfilter",
       data: {
-        State: "enable",
+        State: "!enable",
         name: "Name",
       },
       confirmText: "Are you sure you want to enable this rule?",
@@ -35,11 +35,11 @@ const Page = () => {
     },
     {
       label: "Disable Rule",
-      type: "GET",
+      type: "POST",
       icon: <Block />,
       url: "/api/EditSpamfilter",
       data: {
-        State: "disable",
+        State: "!disable",
         name: "Name",
       },
       confirmText: "Are you sure you want to disable this rule?",
@@ -47,7 +47,7 @@ const Page = () => {
     },
     {
       label: "Delete Rule",
-      type: "GET",
+      type: "POST",
       icon: <TrashIcon />,
       url: "/api/RemoveSpamFilter",
       data: {
@@ -114,5 +114,5 @@ const Page = () => {
   );
 };
 
-Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+Page.getLayout = (page) => <DashboardLayout allTenantsSupport={false}>{page}</DashboardLayout>;
 export default Page;

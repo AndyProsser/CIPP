@@ -1,5 +1,5 @@
-import { Layout as DashboardLayout } from "/src/layouts/index.js";
-import { CippTablePage } from "/src/components/CippComponents/CippTablePage.jsx";
+import { Layout as DashboardLayout } from "../../../../layouts/index.js";
+import { CippTablePage } from "../../../../components/CippComponents/CippTablePage.jsx";
 import { Button } from "@mui/material";
 import { Restore, Backup } from "@mui/icons-material";
 import Link from "next/link";
@@ -28,7 +28,13 @@ const Page = () => {
         showHidden: true,
         Type: "New-CIPPBackup",
       }}
-      simpleColumns={["Tenant", "TaskState", "ExecutedTime"]}
+      simpleColumns={[
+        "Tenant",
+        "Name",
+        "Parameters.ScheduledBackupValues",
+        "TaskState",
+        "ExecutedTime",
+      ]}
       actions={[
         {
           label: "Delete Task",
@@ -39,7 +45,7 @@ const Page = () => {
         },
       ]}
       offCanvas={{
-        extendedInfoFields: ["RowKey", "TaskState", "ExecutedTime"],
+        extendedInfoFields: ["Name", "Tenant", "TaskState", "ExecutedTime"],
         actions: [
           {
             label: "Delete Task",
