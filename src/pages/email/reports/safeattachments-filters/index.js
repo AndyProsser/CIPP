@@ -1,5 +1,5 @@
-import { Layout as DashboardLayout } from "/src/layouts/index.js";
-import { CippTablePage } from "/src/components/CippComponents/CippTablePage.jsx";
+import { Layout as DashboardLayout } from "../../../../layouts/index.js";
+import { CippTablePage } from "../../../../components/CippComponents/CippTablePage.jsx";
 import { Block, Check } from "@mui/icons-material";
 
 const Page = () => {
@@ -10,7 +10,7 @@ const Page = () => {
   const actions = [
     {
       label: "Enable Rule",
-      type: "GET",
+      type: "POST",
       icon: <Check />,
       url: "/api/EditSafeAttachmentsFilter",
       data: {
@@ -19,11 +19,11 @@ const Page = () => {
       },
       confirmText: "Are you sure you want to enable this rule?",
       color: "info",
-      condition: (row) => row.State === "Disabled"
+      condition: (row) => row.State === "Disabled",
     },
     {
       label: "Disable Rule",
-      type: "GET",
+      type: "POST",
       icon: <Block />,
       url: "/api/EditSafeAttachmentsFilter",
       data: {
@@ -88,6 +88,6 @@ const Page = () => {
   );
 };
 
-Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+Page.getLayout = (page) => <DashboardLayout allTenantsSupport={false}>{page}</DashboardLayout>;
 
 export default Page;
