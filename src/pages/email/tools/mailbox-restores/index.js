@@ -1,13 +1,13 @@
-import { Layout as DashboardLayout } from "/src/layouts/index.js";
-import { CippTablePage } from "/src/components/CippComponents/CippTablePage.jsx";
-import { Button } from "@mui/material";
-import Link from "next/link";
+import { Layout as DashboardLayout } from "../../../../layouts/index.js";
+import { CippTablePage } from "../../../../components/CippComponents/CippTablePage.jsx";
 import { RestoreFromTrash, PlayArrow, Pause, Delete } from "@mui/icons-material";
 import MailboxRestoreDetails from "../../../../components/CippComponents/MailboxRestoreDetails";
+import { CippMailboxRestoreDrawer } from "../../../../components/CippComponents/CippMailboxRestoreDrawer";
+import { useSettings } from "../../../../hooks/use-settings";
 
 const Page = () => {
   const pageTitle = "Mailbox Restores";
-
+  const tenantDomain = useSettings().currentTenant;
   const actions = [
     {
       label: "Resume Restore Request",
@@ -16,7 +16,7 @@ const Page = () => {
       icon: <PlayArrow />,
       data: {
         Identity: "Identity",
-        Action: "Resume",
+        Action: "!Resume",
       },
       confirmText: "Are you sure you want to resume this restore request?",
       color: "info",
@@ -28,7 +28,7 @@ const Page = () => {
       icon: <Pause />,
       data: {
         Identity: "Identity",
-        Action: "Suspend",
+        Action: "!Suspend",
       },
       confirmText: "Are you sure you want to suspend this restore request?",
       color: "warning",
@@ -40,7 +40,7 @@ const Page = () => {
       icon: <Delete />,
       data: {
         Identity: "Identity",
-        Action: "Remove",
+        Action: "!Remove",
       },
       confirmText: "Are you sure you want to remove this restore request?",
       color: "danger",
@@ -62,17 +62,8 @@ const Page = () => {
       actions={actions}
       offCanvas={offCanvas}
       simpleColumns={simpleColumns}
-      cardButton={
-        <>
-          <Button
-            component={Link}
-            href="/email/tools/mailbox-restores/add"
-            startIcon={<RestoreFromTrash />}
-          >
-            New Restore Job
-          </Button>
-        </>
-      }
+      cardButton={<CippMailboxRestoreDrawer buttonText="New Restore Job" />}
+      queryKey={`MailboxRestores-${tenantDomain}`}
     />
   );
 };

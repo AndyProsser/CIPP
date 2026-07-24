@@ -1,5 +1,5 @@
-import { Layout as DashboardLayout } from "/src/layouts/index.js";
-import { CippTablePage } from "/src/components/CippComponents/CippTablePage.jsx";
+import { Layout as DashboardLayout } from "../../../../layouts/index.js";
+import { CippTablePage } from "../../../../components/CippComponents/CippTablePage.jsx";
 import { Block, Check } from "@mui/icons-material";
 
 const Page = () => {
@@ -9,11 +9,11 @@ const Page = () => {
   const actions = [
     {
       label: "Enable Rule",
-      type: "GET",
+      type: "POST",
       icon: <Check />,
       url: "/api/EditAntiPhishingFilter",
       data: {
-        State: "Enable",
+        State: "!Enable",
         RuleName: "RuleName",
       },
       confirmText: "Are you sure you want to enable this rule?",
@@ -21,11 +21,11 @@ const Page = () => {
     },
     {
       label: "Disable Rule",
-      type: "GET",
+      type: "POST",
       icon: <Block />,
       url: "/api/EditAntiPhishingFilter",
       data: {
-        State: "Disable",
+        State: "!Disable",
         RuleName: "RuleName",
       },
       confirmText: "Are you sure you want to disable this rule?",
@@ -98,6 +98,6 @@ const Page = () => {
 };
 
 // Layout configuration: ensure page uses DashboardLayout
-Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+Page.getLayout = (page) => <DashboardLayout allTenantsSupport={false}>{page}</DashboardLayout>;
 
 export default Page;
