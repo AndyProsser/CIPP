@@ -1,5 +1,5 @@
 import { Button, Stack, SvgIcon, Tooltip } from "@mui/material";
-import { Close, FileDownload, FileUpload } from "@mui/icons-material";
+import { Close, ContentPasteGo, FileDownload, FileUpload } from "@mui/icons-material";
 import { ApiGetCall } from "../../api/ApiCall";
 import { useDialog } from "../../hooks/use-dialog";
 import { CippApiDialog } from "../CippComponents/CippApiDialog";
@@ -54,9 +54,9 @@ export const CippPermissionReport = (props) => {
     gdapReport.waiting = true;
     tenantReport.waiting = true;
     const report = {
-      Permissions: permissionReport.data,
-      GDAP: gdapReport.data,
-      Tenants: tenantReport.data,
+      Permissions: permissionReport?.data,
+      GDAP: gdapReport?.data,
+      Tenants: tenantReport?.data,
     };
 
     const customerProps = [
@@ -68,19 +68,21 @@ export const CippPermissionReport = (props) => {
       "DisplayName",
       "DefaultDomainName",
       "UserPrincipalName",
+      "ServiceAccount",
       "IPAddress",
-      "GDAPRoles",
+      "AssignedRoles",
+      "GDAPRoles", // reports exported before AssignedRoles was renamed
     ];
 
     if (formData.redactCustomerData) {
       report.Tenants.Results = report?.Tenants?.Results?.map((tenant) => {
         customerProps.forEach((prop) => {
-          if (tenant[prop]) {
-            if (prop === "GDAPRoles") {
+          if (tenant?.[prop]) {
+            if (prop === "AssignedRoles" || prop === "GDAPRoles") {
               tenant[prop] = tenant[prop].map((role) => {
-                if (Array.isArray(role.Group)) {
-                  role.Group = role.Group.map((group) => group.split("@")[0]);
-                } else {
+                if (Array.isArray(role?.Group)) {
+                  role.Group = role.Group.map((group) => group?.split("@")[0]);
+                } else if (role?.Group) {
                   role.Group = role.Group.split("@")[0];
                 }
                 return role;
@@ -95,7 +97,7 @@ export const CippPermissionReport = (props) => {
 
       report?.GDAP?.Results?.GDAPIssues?.map((issue) => {
         customerProps.forEach((prop) => {
-          if (issue[prop]) {
+          if (issue?.[prop]) {
             issue[prop] = redactString(issue[prop]);
           }
         });
@@ -104,7 +106,7 @@ export const CippPermissionReport = (props) => {
 
       report?.Permissions?.Results?.CPVRefreshList?.map((cpv) => {
         customerProps.forEach((prop) => {
-          if (cpv[prop]) {
+          if (cpv?.[prop]) {
             cpv[prop] = redactString(cpv[prop]);
           }
         });
@@ -115,6 +117,11 @@ export const CippPermissionReport = (props) => {
         if (report?.Permissions?.Results?.AccessTokenDetails?.[prop]) {
           report.Permissions.Results.AccessTokenDetails[prop] = redactString(
             report.Permissions.Results.AccessTokenDetails[prop]
+          );
+        }
+        if (report?.Permissions?.Results?.ApplicationTokenDetails?.[prop]) {
+          report.Permissions.Results.ApplicationTokenDetails[prop] = redactString(
+            report.Permissions.Results.ApplicationTokenDetails[prop]
           );
         }
       });
@@ -139,7 +146,7 @@ export const CippPermissionReport = (props) => {
     reader.onload = (e) => {
       const report = JSON.parse(e.target.result);
 
-      if (!report.Permissions || !report.GDAP || !report.Tenants) {
+      if (!report?.Permissions && !report?.GDAP && !report?.Tenants) {
         setImportError("Invalid report format");
         return;
       }
@@ -149,6 +156,23 @@ export const CippPermissionReport = (props) => {
     };
     reader.readAsText(file);
     e.target.value = null;
+  };
+
+  const handleImportFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const report = JSON.parse(text);
+
+      if (!report?.Permissions && !report?.GDAP && !report?.Tenants) {
+        setImportError("Invalid report format");
+        return;
+      }
+      setCurrentFile({ name: "Clipboard Data" });
+      setImportReport(report);
+      setImportError(false);
+    } catch (error) {
+      setImportError("Failed to read from clipboard");
+    }
   };
 
   return (
@@ -186,6 +210,19 @@ export const CippPermissionReport = (props) => {
             accept=".json"
             id="report-upload"
           />
+        </Button>
+        <Button
+          size="small"
+          variant="contained"
+          color="primary"
+          onClick={handleImportFromClipboard}
+          startIcon={
+            <SvgIcon fontSize="small">
+              <ContentPasteGo />
+            </SvgIcon>
+          }
+        >
+          Paste Report
         </Button>
         {importReport && (
           <Tooltip title="Close report">
